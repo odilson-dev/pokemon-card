@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "exerciceone",
-    "slug": "exerciceone",
+    "name": "pokemon-card",
+    "slug": "pokemon-card",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "exerciceone",
+    "scheme": "pokemon-card",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
