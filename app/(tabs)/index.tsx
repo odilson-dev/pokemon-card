@@ -1,5 +1,5 @@
 import PokemonCard from "@/components/PokemonCard";
-import { ScrollView, StyleSheet } from "react-native";
+import { FlatList, ScrollView, StyleSheet } from "react-native";
 
 export default function App() {
   const pokemons = [
@@ -40,9 +40,12 @@ export default function App() {
   ];
   return (
     <ScrollView style={styles.container}>
-      {pokemons.map((pokemon) => (
-        <PokemonCard key={pokemon.name} {...pokemon} />
-      ))}
+      <FlatList
+        data={pokemons}
+        renderItem={({ item }) => {
+          <PokemonCard key={item.name} {...item} />;
+        }}
+      />
     </ScrollView>
   );
 }
