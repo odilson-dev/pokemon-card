@@ -1,25 +1,42 @@
-import { SectionList, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
-import groupedSectionList from "../../constants/grouped-data.json";
 export default function App() {
+  const [name, setName] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   return (
-    <View style={styles.container}>
-      <SectionList
-        sections={groupedSectionList}
-        renderItem={({ item }) => {
-          return (
-            <View style={styles.card}>
-              <Text style={styles.cardText}>{item}</Text>
-            </View>
-          );
-        }}
-        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        SectionSeparatorComponent={() => <View style={{ height: 16 }} />}
-        renderSectionHeader={({ section }) => {
-          return <Text style={styles.sectionHedearText}>{section.type}</Text>;
-        }}
+    <SafeAreaView style={styles.container}>
+      <TextInput
+        style={styles.input}
+        value={name}
+        placeholder="Enter your name"
+        onChangeText={setName}
       />
-    </View>
+      <Text style={[styles.text]}> My name is {name}</Text>
+
+      <TextInput
+        style={[styles.input, styles.multiLineText]}
+        multiline
+        placeholder="Message"
+      />
+
+      <View style={styles.switchContainer}>
+        <Text style={styles.text}>{isDarkMode ? "Dark" : "Light"} mode</Text>
+        <Switch
+          value={isDarkMode}
+          onValueChange={() => setIsDarkMode(!isDarkMode)}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -27,37 +44,30 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
+    paddingTop: StatusBar.currentHeight,
+    paddingHorizontal: 16,
   },
-  sectionHedearText: {
-    backgroundColor: "white",
-    fontSize: 24,
-    fontWeight: "bold",
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
   },
-  card: {
-    padding: 16,
-    backgroundColor: "white",
-    borderRadius: 8,
+  text: {},
+  input: {
+    padding: 10,
+    height: 40,
+    margin: 12,
     borderWidth: 1,
   },
-  cardText: {
-    fontSize: 30,
+  multiLineText: {
+    minHeight: 100,
+    textAlignVertical: "top",
   },
-
-  emptyLabel: {
-    fontSize: 32,
-    textAlign: "center",
-  },
-
-  headerText: {
-    fontSize: 32,
-    marginBottom: 32,
-    textAlign: "center",
-  },
-
-  footerText: {
-    fontSize: 32,
-    marginBottom: 32,
-    textAlign: "center",
+  text: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "red",
   },
 });
