@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import {
+  Button,
   FlatList,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import Animated, {
@@ -49,13 +51,45 @@ const SkeletonCard = () => {
 export default function App() {
   const [postList, setPostList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [refreshing, setRefreshing] = useState(false);
+  const [postTitle, setPostTitle] = useState("");
+  const [postBody, setPostBody] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleRefresh = () => {
     setRefreshing(true);
     fetchData(20);
     setRefreshing(false);
+  };
+
+  const handleAddPost = async () => {
+    setIsPosting(true);
+    try {
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/posts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: postTitle,
+            body: postBody,
+          }),
+        },
+      );
+
+      const newPost = await response.json();
+      setPostList([newPost, ...postList]);
+      setPostTitle("");
+      setPostBody("");
+    } catch (error) {
+      console.error("Error adding post:", error);
+      setError("Failed to add post");
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   const fetchData = async (limit = 10) => {
@@ -68,6 +102,7 @@ export default function App() {
       setPostList(data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError("Failed to fetch post list");
     } finally {
       setIsLoading(false);
     }
@@ -79,37 +114,64 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.listContainer}>
-        {isLoading ? (
-          <FlatList
-            data={[1, 2, 3, 4, 5]}
-            renderItem={() => <SkeletonCard />}
-            keyExtractor={(item) => item.toString()}
-          />
-        ) : (
-          <FlatList
-            data={postList}
-            renderItem={({ item }: any) => (
-              <View style={styles.card}>
-                <Text style={styles.titleText}>
-                  {item.title} #{item.id}
-                </Text>
-                <Text style={styles.bodyText}>{item.body}</Text>
-              </View>
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Post Title"
+              value={postTitle}
+              onChangeText={setPostTitle}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Post Body"
+              value={postBody}
+              onChangeText={setPostBody}
+            />
+            <Button
+              title={isPosting ? "Posting..." : "Add Post"}
+              onPress={handleAddPost}
+              disabled={isPosting}
+            />
+          </View>
+          <View style={styles.listContainer}>
+            {isLoading ? (
+              <FlatList
+                data={[1, 2, 3, 4, 5]}
+                renderItem={() => <SkeletonCard />}
+                keyExtractor={(item) => item.toString()}
+              />
+            ) : (
+              <FlatList
+                data={postList}
+                renderItem={({ item }: any) => (
+                  <View style={styles.card}>
+                    <Text style={styles.titleText}>
+                      {item.title} #{item.id}
+                    </Text>
+                    <Text style={styles.bodyText}>{item.body}</Text>
+                  </View>
+                )}
+                ListHeaderComponent={
+                  <Text style={styles.headerTitle}>Recent Posts</Text>
+                }
+                ListFooterComponent={
+                  <Text style={styles.headerTitle}>End of the posts</Text>
+                }
+                ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+                keyExtractor={(item: any) => item.id.toString()}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+              />
             )}
-            ListHeaderComponent={
-              <Text style={styles.headerTitle}>Recent Posts</Text>
-            }
-            ListFooterComponent={
-              <Text style={styles.headerTitle}>End of the posts</Text>
-            }
-            ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-            keyExtractor={(item: any) => item.id.toString()}
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-          />
-        )}
-      </View>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -169,5 +231,36 @@ export const styles = StyleSheet.create({
     backgroundColor: "#e0e0e0",
     borderRadius: 4,
     width: "100%",
+  },
+
+  inputContainer: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    margin: 16,
+    borderWidth: 1,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 8,
+    borderRadius: 8,
+    paddingBottom: 8,
+  },
+
+  errorContainer: {
+    backgroundColor: "#FFC0CB",
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    margin: 16,
+    alignItems: "center",
+  },
+
+  errorText: {
+    fontSize: 16,
+    color: "#4a4a4a",
+    lineHeight: 24,
   },
 });
